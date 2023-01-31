@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id "io.freefair.lombok" version "6.0.0-m2"
 }
 
 group 'org.example'
@@ -9,9 +10,18 @@ repositories {
     mavenCentral()
 }
 
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
 dependencies {
-    testImplementation("io.rest-assured:rest-assured:5.3.0",
-            "org.junit.jupiter:junit-jupiter:5.9.0" )
+    testImplementation(
+            "io.rest-assured:rest-assured:5.3.0",
+            "org.junit.jupiter:junit-jupiter:5.9.0",
+            "com.fasterxml.jackson.core:jackson-core:2.14.0n",
+            "com.fasterxml.jackson.core:jackson-databind:2.14.0",
+            'org.projectlombok:lombok:1.18.22'
+    )
 }
 
 test {

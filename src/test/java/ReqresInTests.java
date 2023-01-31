@@ -1,65 +1,92 @@
-import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import setting.ListUsers;
+import setting.SingleUser;
+import setting.Users;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class ReqresInTests {
-    public String dataUser = "{\"name\": \"morpheus\",\"job\": \"leader\"}",
-    updateUser = "{\"name\": \"morpheus\",\"job\": \"zion resident\"}";
-
 
     @Test
-    public void listUser(){
-        given()
+    public void listUsers() {
+        ListUsers listUsers = given()
+                .spec(Specs.request)
                 .when()
-                .get("https://reqres.in/api/users?page=2")
+                .get("/users?page=2")
                 .then()
-                .statusCode(200)
-                .body("total", is(12));
+                .spec(Specs.response200)
+                .log().status()
+                .body("data.findAll{it.id == 8}.last_name.flatten()",
+                        hasItem("Ferguson"))
+                .extract().as(ListUsers.class);
+
+        assertEquals(2, listUsers.getPage());
+        assertEquals(12, listUsers.getTotal());
     }
 
     @Test
     public void createUser() {
-        given()
-                .contentType(ContentType.JSON)
-                .body(dataUser)
+        Users users = new Users();
+        users.setName("Jon");
+        users.setJob("Work");
+
+        Users createUsers = given()
+                .spec(Specs.request)
+                .body(users)
                 .when()
-                .post("https://reqres.in/api/users")
+                .post("/users")
                 .then()
-                .statusCode(201)
-                .body("job", is("leader"));
+                .spec(Specs.response201)
+                .extract().as(Users.class);
+
+        assertEquals("Jon", createUsers.getName());
+        assertEquals("Work", createUsers.getJob());
     }
 
     @Test
     public void getUser() {
-        given()
+        SingleUser user = given()
+                .spec(Specs.request)
                 .when()
-                .get("https://reqres.in/api/users/2")
+                .get("/users/2")
                 .then()
-                .log().all()
-                .statusCode(200)
-                .body("data.first_name", is("Janet"));
+                .spec(Specs.response200)
+                .extract().as(SingleUser.class);
+
+        assertEquals("Janet", user.getData().getFirstName());
+        assertEquals("Weaver", user.getData().getLastName());
     }
 
+
     @Test
-    public void updateUser(){
-        given()
-                .contentType(ContentType.JSON)
+    public void updateUser() {
+        Users updateUser = new Users();
+        updateUser.setName("morpheus");
+        updateUser.setJob("zion resident");
+
+        Users users = given()
+                .spec(Specs.request)
                 .body(updateUser)
                 .when()
-                .put("https://reqres.in/api/users/2")
+                .put("/users/2")
                 .then()
-                .statusCode(200)
-                .body("job", is("zion resident"));
+                .spec(Specs.response200)
+                .extract().as(Users.class);
+
+        assertEquals("morpheus", users.getName());
+        assertEquals("zion resident", users.getJob());
     }
 
     @Test
     public void deleteUser() {
         given()
+                .spec(Specs.request)
                 .when()
-                .delete("https://reqres.in/api/users2")
+                .delete("/users2")
                 .then()
-                .statusCode(204);
+                .spec(Specs.response204);
     }
 }

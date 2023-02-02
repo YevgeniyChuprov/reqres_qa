@@ -1,8 +1,10 @@
+import io.qameta.allure.restassured.AllureRestAssured;
 import org.junit.jupiter.api.Test;
 import setting.ListUsers;
 import setting.SingleUser;
 import setting.Users;
 
+import static helpers.CustomApiListener.withCustomTemplates;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,6 +16,7 @@ public class ReqresInTests {
     public void listUsers() {
         ListUsers listUsers = given()
                 .spec(Specs.request)
+                .filter(withCustomTemplates())
                 .when()
                 .get("/users?page=2")
                 .then()
@@ -35,6 +38,7 @@ public class ReqresInTests {
 
         Users createUsers = given()
                 .spec(Specs.request)
+                .filter(withCustomTemplates())
                 .body(users)
                 .when()
                 .post("/users")
@@ -50,6 +54,7 @@ public class ReqresInTests {
     public void getUser() {
         SingleUser user = given()
                 .spec(Specs.request)
+                .filter(withCustomTemplates())
                 .when()
                 .get("/users/2")
                 .then()
@@ -69,6 +74,7 @@ public class ReqresInTests {
 
         Users users = given()
                 .spec(Specs.request)
+                .filter(withCustomTemplates())
                 .body(updateUser)
                 .when()
                 .put("/users/2")
@@ -84,6 +90,7 @@ public class ReqresInTests {
     public void deleteUser() {
         given()
                 .spec(Specs.request)
+                .filter(withCustomTemplates())
                 .when()
                 .delete("/users2")
                 .then()
